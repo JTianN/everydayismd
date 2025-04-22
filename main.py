@@ -6,13 +6,19 @@ import os
 from dotenv import load_dotenv
 
 # --- โหลดค่า Environment Variables ---
-load_dotenv()
+#load_dotenv()
 
 # --- ตั้งค่า Firebase ---
-cred = credentials.Certificate(os.getenv("FIREBASE_KEY_PATH"))
+# cred = credentials.Certificate(os.getenv("FIREBASE_KEY_PATH"))
+# initialize_app(cred)
+# db = firestore.client()
+# users_ref = db.collection("users")
+
+cred = credentials.Certificate("MyKey.json")  # <<< ใส่ path ที่ถูกต้องตรงนี้
 initialize_app(cred)
 db = firestore.client()
 users_ref = db.collection("users")
+
 
 # --- FastAPI App ---
 app = FastAPI()
