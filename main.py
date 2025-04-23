@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 # --- โหลดค่า Environment Variables ---
-#load_dotenv()
+#load_dotenv() #####
 
 # --- ตั้งค่า Firebase ---
 # cred = credentials.Certificate(os.getenv("FIREBASE_KEY_PATH"))
