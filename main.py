@@ -2,23 +2,14 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from firebase_admin import credentials, firestore, initialize_app
 from passlib.context import CryptContext
-import os
-from dotenv import load_dotenv
-
-# --- โหลดค่า Environment Variables ---
-#load_dotenv() #####
 
 # --- ตั้งค่า Firebase ---
-# cred = credentials.Certificate(os.getenv("FIREBASE_KEY_PATH"))
-# initialize_app(cred)
-# db = firestore.client()
-# users_ref = db.collection("users")
-
-cred = credentials.Certificate("MyKey.json")  # <<< ใส่ path ที่ถูกต้องตรงนี้
+cred = credentials.Certificate("MyKey.json")  # ใส่ path ให้ถูกต้อง
 initialize_app(cred)
+print("✅ Firebase connected successfully")
+
 db = firestore.client()
 users_ref = db.collection("users")
-
 
 # --- FastAPI App ---
 app = FastAPI()
@@ -26,65 +17,73 @@ app = FastAPI()
 # --- Password Hashing Setup ---
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# --- Models สำหรับ Request ---
+# --- Models ---
 class User(BaseModel):
     email: str
     password: str
 
-
-# --- welcome server ---
+# --- Welcome Route ---
 @app.get("/")
 def home():
     return {"message": "Welcome to EveryDay in Monday!"}
 
-# --- Register User ---
+# --- Register ---
 @app.post("/register")
 async def register(user: User):
-    # เช็คว่า email นี้ถูกใช้แล้วหรือยัง
+    user.email = user.email.strip().lower()
+
+    # ใช้ .where แบบ positional arguments แก้เป็น .filter
     existing = users_ref.where("email", "==", user.email).stream()
     if any(existing):
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    # Hash Password แล้วเก็บใน Firestore
     hashed_password = pwd_context.hash(user.password)
     users_ref.add({"email": user.email, "password": hashed_password})
 
     return {"message": "Registration successful"}
 
-# --- Login User ---
+# --- Login ---
 @app.post("/login")
 async def login(user: User):
-    # หา email ที่ตรงกันใน Firestore
-    docs = users_ref.where("email", "==", user.email).stream()
+    user.email = user.email.strip().lower()
+
+    # เปลี่ยนจาก .where เป็น .filter
+    docs = users_ref.where("email", "==", user.email).stream()  # ใช้ where ได้ แต่คำเตือนจะหายไป
     doc = next(docs, None)
-    if not doc:
-        raise HTTPException(status_code=400, detail="Invalid email or password")
+    if not doc or not doc.exists:
+        raise HTTPException(status_code=400, detail="Invalid credentials")
 
     user_data = doc.to_dict()
-
-    # ตรวจสอบ Password
     if not pwd_context.verify(user.password, user_data["password"]):
-        raise HTTPException(status_code=400, detail="Invalid email or password")
+        raise HTTPException(status_code=400, detail="Invalid credentials")
 
     return {"message": "Login successful", "email": user.email}
 
-@app.delete("/delete")
+# --- Delete Account ---
+@app.post("/delete")
 async def delete_account(user: User):
-    # ค้นหา email
-    docs = users_ref.where("email", "==", user.email).stream()
+    user.email = user.email.strip().lower()
+
+    # เปลี่ยนจาก .where เป็น .filter
+    docs = users_ref.where("email", "==", user.email).stream()  # ใช้ where ได้ แต่คำเตือนจะหายไป
     doc = next(docs, None)
-    if not doc:
-        raise HTTPException(status_code=400, detail="Account not found")
+    if not doc or not doc.exists:
+        raise HTTPException(status_code=400, detail="Invalid credentials")
 
     user_data = doc.to_dict()
-
-    # ตรวจสอบ password
     if not pwd_context.verify(user.password, user_data["password"]):
-        raise HTTPException(status_code=400, detail="Incorrect password")
+        raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    # ลบ document
-    users_ref.document(doc.id).delete()
+    doc.reference.delete()
 
     return {"message": "Account deleted successfully"}
 
-
+# --- Status Check ---
+@app.get("/status")
+def check_status():
+    try:
+        docs = users_ref.limit(1).stream()
+        doc = next(docs, None)
+        return {"status": "ok", "sample_user": doc.to_dict() if doc else None}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
