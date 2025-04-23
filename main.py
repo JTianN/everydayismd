@@ -4,7 +4,7 @@ from firebase_admin import credentials, firestore, initialize_app
 from passlib.context import CryptContext
 
 # --- ตั้งค่า Firebase ---
-cred = credentials.Certificate("MyKey.json")  # ใส่ path ให้ถูกต้อง
+cred = credentials.Certificate("MyKey.json")  # ใส่ path ให้ถูกต้อง comment น้ะจ้ะ
 initialize_app(cred)
 print("✅ Firebase connected successfully")
 
