@@ -6,6 +6,9 @@ import os
 import json
 from fastapi.middleware.cors import CORSMiddleware
 
+# --- FastAPI App ---
+app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # หรือ ["http://localhost:3000"] ถ้าอยากจำกัดแค่ frontend ที่ใช้
@@ -35,8 +38,6 @@ db = firestore.client()
 users_ref = db.collection("users")
 
 
-# --- FastAPI App ---
-app = FastAPI()
 
 # --- Password Hashing Setup ---
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
