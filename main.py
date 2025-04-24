@@ -2,14 +2,29 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from firebase_admin import credentials, firestore, initialize_app
 from passlib.context import CryptContext
+import os
+import json
 
 # --- ตั้งค่า Firebase ---
-cred = credentials.Certificate("MyKey.json")  # ใส่ path ให้ถูกต้อง comment น้ะจ้ะ
+# cred = credentials.Certificate("MyKey.json")  # ใส่ path ให้ถูกต้อง comment น้ะจ้ะ
+# initialize_app(cred)
+# print("✅ Firebase connected successfully")
+
+# db = firestore.client()
+# users_ref = db.collection("users")
+
+#แก้ code 24-04-2025 change path key
+
+# โหลด JSON จาก Environment Variable
+firebase_cred_dict = json.loads(os.getenv("FIREBASE_CREDENTIAL_JSON"))
+# สร้าง credential จาก dict (ไม่ใช้ไฟล์)
+cred = credentials.Certificate(firebase_cred_dict)
 initialize_app(cred)
 print("✅ Firebase connected successfully")
-
+# ใช้งาน Firestore ได้ตามปกติ
 db = firestore.client()
 users_ref = db.collection("users")
+
 
 # --- FastAPI App ---
 app = FastAPI()
