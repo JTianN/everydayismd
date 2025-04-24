@@ -13,7 +13,7 @@ import json
 # db = firestore.client()
 # users_ref = db.collection("users")
 
-#แก้ code 24-04-2025 change path key
+#แก้ code 24-04-2025 change path key 2025
 
 # โหลด JSON จาก Environment Variable
 firebase_cred_dict = json.loads(os.getenv("FIREBASE_CREDENTIAL_JSON"))
