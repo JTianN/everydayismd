@@ -4,6 +4,15 @@ from firebase_admin import credentials, firestore, initialize_app
 from passlib.context import CryptContext
 import os
 import json
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # หรือ ["http://localhost:3000"] ถ้าอยากจำกัดแค่ frontend ที่ใช้
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- ตั้งค่า Firebase ---
 # cred = credentials.Certificate("MyKey.json")  # ใส่ path ให้ถูกต้อง comment น้ะจ้ะ
