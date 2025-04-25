@@ -21,14 +21,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- ตั้งค่า Firebase ---
-# cred = credentials.Certificate("MyKey.json")  # ใส่ path ให้ถูกต้อง comment น้ะจ้ะ
-# initialize_app(cred)
-# print("✅ Firebase connected successfully")
-
-# db = firestore.client()
-# users_ref = db.collection("users")
-profile_users_ref = db.collection("profile_users")  # เพิ่มมาใหม่
 
 #แก้ code 24-04-2025 change path key 2025
 
@@ -41,6 +33,7 @@ print("✅ Firebase connected successfully")
 # ใช้งาน Firestore ได้ตามปกติ
 db = firestore.client()
 users_ref = db.collection("users")
+profile_users_ref = db.collection("profile_users")  # เพิ่มมาใหม่
 
 
 
