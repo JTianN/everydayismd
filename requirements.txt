@@ -3,3 +3,5 @@ uvicorn[standard]
 python-dotenv
 firebase-admin
 passlib[bcrypt]
+google-cloud-firestore
+python-multipart
