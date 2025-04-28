@@ -103,7 +103,7 @@ async def login(user: User):
     if not pwd_context.verify(user.password, user_data["password"]):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    return {"message": "Login successful", "email": user.email}
+    return {"message": "Login successful", "email": user.email,"status": user_data.get("status", "0")}
 
 # --- Delete Account ---
 @app.post("/delete")
