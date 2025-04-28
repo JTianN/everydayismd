@@ -63,6 +63,7 @@ class UpdateProfileUser(BaseModel):  # เพิ่มมาใหม่
     enduBTN: Optional[str] = None
 
 class CreateProfileUser(BaseModel):  # เพิ่มมาใหม่
+    email: str    # << เพิ่มบรรทัดนี้
     name: str
     status: Optional[str] = ""
     comments: Optional[List[str]] = []
@@ -158,6 +159,17 @@ def get_latest_profile_users():
 def get_profile_user_by_name(name: str):
     try:
         docs = profile_users_ref.where("name", "==", name).stream()  # เพิ่มมาใหม่
+        doc = next(docs, None)
+        if not doc:
+            raise HTTPException(status_code=404, detail="ไม่พบข้อมูล profile_user")
+        return {"profile_user": doc.to_dict()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/profile_users/email/{email}")
+def get_profile_user_by_email(email: str):
+    try:
+        docs = profile_users_ref.where("email", "==", email).stream()
         doc = next(docs, None)
         if not doc:
             raise HTTPException(status_code=404, detail="ไม่พบข้อมูล profile_user")
