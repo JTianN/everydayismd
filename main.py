@@ -105,6 +105,23 @@ async def login(user: User):
 
     return {"message": "Login successful", "email": user.email,"status": user_data.get("status", "0")}
 
+# --- Update status เป็น 1 ตาม email ---
+@app.put("/update/{email}")
+async def update_user_status(email: str):
+    try:
+        email = email.strip().lower()
+        docs = users_ref.where("email", "==", email).stream()
+        doc = next(docs, None)
+
+        if not doc or not doc.exists:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        doc.reference.update({"status": "1"})
+        return {"message": "User status updated to 1"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # --- Delete Account ---
 @app.post("/delete")
 async def delete_account(user: User):
