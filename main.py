@@ -49,7 +49,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class User(BaseModel):
     email: str
     password: str
-    status : str
 
 class ProfileUser(BaseModel):  # เพิ่มมาใหม่
     name: str
@@ -86,7 +85,7 @@ async def register(user: User):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     hashed_password = pwd_context.hash(user.password)
-    users_ref.add({"email": user.email, "password": hashed_password ,"status":"0"})
+    users_ref.add({"email": user.email, "password": hashed_password})
 
     return {"message": "Registration successful"}
 
