@@ -166,25 +166,6 @@ def get_profile_user_by_name(name: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/profile_users/{email}", response_model=UserProfile)
-def get_profile_user_by_email(email: str):
-    try:
-        # Query Firestore to find the user by email
-        docs = profile_users_ref.where("email", "==", email).stream()
-        doc = next(docs, None)
-        
-        if not doc:
-            raise HTTPException(status_code=404, detail="ไม่พบข้อมูล profile_user")
-        
-        # Add random_id to the response
-        user_data = doc.to_dict()
-        user_data["random_id"] = doc.id  # Add the document ID
-        
-        return UserProfile(**user_data)
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
-        
 
 # เพิ่มมาใหม่ --- อัปเดตข้อมูล profile_user โดยใช้ ID ---
 @app.put("/profile_users/name/{name}")
