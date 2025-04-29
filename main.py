@@ -207,3 +207,21 @@ async def create_profile_user(profile_user: CreateProfileUser):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# เพิ่ม API สำหรับสร้าง Get profile_user by email 
+@app.get("/profile_users/by-email/{email}")
+async def get_profile_user_by_email(email: str):
+    try:
+        email = email.strip().lower()  # <<< แปลงเป็นตัวเล็กก่อนค้นหา
+        docs = profile_users_ref.where("email", "==", email).stream()
+        doc = next(docs, None)
+
+        if not doc:
+            raise HTTPException(status_code=404, detail="ไม่พบข้อมูล profile_user")
+
+        user_data = doc.to_dict()
+        user_data["random_id"] = doc.id
+
+        return {"profile_user": user_data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
